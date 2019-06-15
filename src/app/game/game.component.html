@@ -197,14 +197,14 @@
         Double Down
       </button>
 
+      <!-- !! Switch this back in when splitting is working -->
+      <!-- [disabled]="game.human.isBusted || game.dealerTurn || game.human.hand.length > 2" -->
       <button
         kendoButton
         [look]="'outline'"
         (click)="game.split()"
         [primary]="true"
-        [disabled]="
-          game.human.isBusted || game.dealerTurn || game.human.hand.length > 2
-        "
+        [disabled]="true"
         ng-disabled="game.human.isBusted || game.dealerTurn || game.human.hand.length > 2"
       >
         Split
