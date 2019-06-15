@@ -1,0 +1,327 @@
+<div>
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700"
+  />
+
+  <p [style.color]="game.color">Balance: ${{ game.human.winnings }}</p>
+  <p>
+    Bet per hand: $
+    <kendo-numerictextbox
+      [value]="game.bet"
+      [(ngModel)]="game.bet"
+      [min]="1"
+      [max]="game.human.winnings"
+      [autoCorrect]="true"
+      [disabled]="!game.handOver"
+    >
+    </kendo-numerictextbox>
+  </p>
+  <!-- <canvas id="myChart"></canvas> -->
+  <!-- <p>Lucky Lucky bet: ${{ game.luckylucky }}</p>
+  <div class="col-xs-12 col-sm-6 example-col">
+    <div class="col-xs-12 col-sm-6 example-col">
+      <kendo-textbox-container floatingLabel="Lucky lucky">
+        <input kendoTextBox />{{ game.luckylucky }}
+      </kendo-textbox-container>
+    </div> -->
+  <p>
+    Dealer Cards:
+  </p>
+
+  <!-- Conditionally show dealer full hand -->
+  <div *ngIf="game.dealerTurn">
+    <ul>
+      <li *ngFor="let card of game.dealer.hand">
+        <app-card
+          [name]="card.name"
+          [suite]="card.suite"
+          [image]="card.image"
+        ></app-card>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Dealer Up Card -->
+  <div *ngIf="!game.dealerTurn">
+    <ul>
+      <li>
+        <app-card
+          [name]="game.dealer.hand[0].name"
+          [suite]="game.dealer.hand[0].suite"
+          [image]="game.dealer.hand[0].image"
+        ></app-card>
+      </li>
+      <li hidden="!game.dealerTurn">
+        <img src="assets/Gray_back.jpg" width="10%" height="10%" />
+      </li>
+    </ul>
+  </div>
+
+  <div class="col-xs-12 col-md-6 example-col">
+    <label [for]="checked">Peek Dealer </label>
+    <kendo-switch
+      [(ngModel)]="game.peek"
+      width="75%"
+      height="75%"
+    ></kendo-switch>
+  </div>
+
+  <div *ngIf="game.peek">
+    <div
+      *ngIf="
+        game.dealer.upperScore != game.dealer.lowerScore &&
+          game.dealer.upperScore < 21;
+        else oneScore
+      "
+    >
+      <p>
+        Split Score: {{ game.dealer.lowerScore }} / {{ game.dealer.upperScore }}
+      </p>
+    </div>
+
+    <ng-template #oneScore>
+      <div *ngIf="game.dealer.hasBlackJack(); else noBlackJack">
+        <p>Score: {{ game.dealer.upperScore }}</p>
+      </div>
+      <ng-template #noBlackJack>
+        <p>Score: {{ game.dealer.lowerScore }}</p>
+      </ng-template>
+    </ng-template>
+  </div>
+
+  <kendo-splitter-pane [resizable]="false" size="100px"></kendo-splitter-pane>
+  <!-- Player hand -->
+  <div>
+    <p>Your Cards:</p>
+    <ul>
+      <li *ngFor="let card of game.human.hand">
+        <app-card
+          [name]="card.name"
+          [suite]="card.suite"
+          [image]="card.image"
+        ></app-card>
+      </li>
+    </ul>
+  </div>
+  <div class="col-xs-12 col-md-6 example-col">
+    <label [for]="checked">Show Score </label>
+    <kendo-switch
+      [(ngModel)]="game.showScore"
+      width="75%"
+      height="75%"
+    ></kendo-switch>
+  </div>
+
+  <div *ngIf="game.showScore">
+    <div
+      *ngIf="
+        game.human.upperScore != game.human.lowerScore &&
+          game.human.upperScore < 21;
+        else oneScore
+      "
+    >
+      <p>
+        Split Score: {{ game.human.lowerScore }} / {{ game.human.upperScore }}
+      </p>
+    </div>
+
+    <ng-template #oneScore>
+      <div *ngIf="game.human.hasBlackJack(); else noBlackJack">
+        <p>Score: {{ game.human.upperScore }}</p>
+      </div>
+      <ng-template #noBlackJack>
+        <p>Score: {{ game.human.lowerScore }}</p>
+      </ng-template>
+    </ng-template>
+  </div>
+
+  <!-- <div *ngIf="game.human.upperScore != game.human.lowerScore && game.showScore"> -->
+  <!-- <p>Score: {{ game.human.lowerScore }} / {{ game.human.upperScore }}</p> -->
+
+  <!-- <p>Lower Score: {{ game.human.lowerScore }}</p> -->
+  <!-- <p>Upper Score: {{ game.human.upperScore }}</p> -->
+  <!-- </div> -->
+
+  <!-- <div *ngIf="game.human.upperScore === game.human.lowerScore && game.showScore"> -->
+  <!-- <p>Score: {{ game.human.upperScore }}</p> -->
+  <!-- </div> -->
+
+  <!-- Buttons -->
+
+  <div>
+    <kendo-buttongroup>
+      <!-- Hit Button -->
+      <button
+        kendoButton
+        [look]="'outline'"
+        (click)="game.hit(game.human, false)"
+        [primary]="true"
+        [disabled]="game.human.isBusted || game.dealerTurn"
+        ng-disabled="game.human.isBusted || game.dealerTurn"
+      >
+        Hit
+      </button>
+
+      <!-- Stand Button -->
+      <button
+        kendoButton
+        [look]="'outline'"
+        (click)="game.stand()"
+        [primary]="true"
+        [disabled]="game.human.isBusted || game.dealerTurn"
+        ng-disabled="game.human.isBusted || game.dealerTurn"
+      >
+        Stand
+      </button>
+
+      <button
+        kendoButton
+        [look]="'outline'"
+        (click)="game.nextHand()"
+        [primary]="true"
+        [disabled]="!game.handOver"
+      >
+        Deal Next Hand
+      </button>
+      <button
+        kendoButton
+        [look]="'outline'"
+        (click)="game.double()"
+        [primary]="true"
+        [disabled]="
+          game.human.isBusted || game.dealerTurn || game.human.hand.length > 2
+        "
+        ng-disabled="game.human.isBusted || game.dealerTurn || game.human.hand.length > 2"
+      >
+        Double Down
+      </button>
+
+      <button
+        kendoButton
+        [look]="'outline'"
+        (click)="game.split()"
+        [primary]="true"
+        [disabled]="
+          game.human.isBusted || game.dealerTurn || game.human.hand.length > 2
+        "
+        ng-disabled="game.human.isBusted || game.dealerTurn || game.human.hand.length > 2"
+      >
+        Split
+      </button>
+    </kendo-buttongroup>
+    <h2>{{ game.message }}</h2>
+
+    <!-- second hand -->
+    <div [hidden]="!game.showSecondScore">
+      <div>
+        <p>Your Cards:</p>
+        <ul>
+          <li *ngFor="let card of game.human.secondHand">
+            <app-card
+              [name]="card.name"
+              [suite]="card.suite"
+              [image]="card.image"
+            ></app-card>
+          </li>
+        </ul>
+      </div>
+      <div class="col-xs-12 col-md-6 example-col">
+        <label [for]="checked">Show Score </label>
+        <kendo-switch
+          [(ngModel)]="game.showScore"
+          width="75%"
+          height="75%"
+        ></kendo-switch>
+      </div>
+
+      <div
+        *ngIf="
+          game.human.secondUpperScore != game.human.secondLowerScore &&
+          game.showSecondScore
+        "
+      >
+        <p>Lower Score: {{ game.human.secondLowerScore }}</p>
+        <p>Upper Score: {{ game.human.secondUpperScore }}</p>
+      </div>
+
+      <div
+        *ngIf="
+          game.human.upperScore === game.human.secondLowerScore &&
+          game.showSecondScore
+        "
+      >
+        <p>Score: {{ game.human.secondUpperScore }}</p>
+      </div>
+
+      <!-- Buttons -->
+
+      <div>
+        <kendo-buttongroup>
+          <!-- Hit Button -->
+          <button
+            kendoButton
+            [look]="'outline'"
+            (click)="game.hit(game.human, true)"
+            [primary]="true"
+            [disabled]="game.human.isBusted || game.dealerTurn"
+            ng-disabled="game.human.isBusted || game.dealerTurn"
+          >
+            Hit
+          </button>
+
+          <!-- Stand Button -->
+          <button
+            kendoButton
+            [look]="'outline'"
+            (click)="game.stand()"
+            [primary]="true"
+            [disabled]="game.human.isBusted || game.dealerTurn"
+            ng-disabled="game.human.isBusted || game.dealerTurn"
+          >
+            Stand
+          </button>
+
+          <button
+            kendoButton
+            [look]="'outline'"
+            (click)="game.nextHand()"
+            [primary]="true"
+          >
+            Next Hand
+          </button>
+          <button
+            kendoButton
+            [look]="'outline'"
+            (click)="game.double()"
+            [primary]="true"
+            [disabled]="
+              game.human.isBusted ||
+              game.dealerTurn ||
+              game.human.hand.length > 2
+            "
+            ng-disabled="game.human.isBusted || game.dealerTurn || game.human.hand.length > 2"
+          >
+            Double Down
+          </button>
+
+          <button
+            kendoButton
+            [look]="'outline'"
+            (click)="game.split()"
+            [primary]="true"
+            [disabled]="
+              game.human.isBusted ||
+              game.dealerTurn ||
+              game.human.hand.length > 2
+            "
+            ng-disabled="game.human.isBusted || game.dealerTurn || game.human.hand.length > 2"
+          >
+            Split
+          </button>
+        </kendo-buttongroup>
+        <h2>{{ game.message }}</h2>
+      </div>
+    </div>
+  </div>
+</div>

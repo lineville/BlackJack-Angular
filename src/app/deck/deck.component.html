@@ -1,0 +1,5 @@
+<ul>
+  <li *ngFor="let card of deck.cards">
+    <app-card [name]="card.name" [suite]="card.suite"></app-card>
+  </li>
+</ul>
