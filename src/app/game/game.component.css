@@ -1,9 +1,22 @@
+/* * {
+  background-color: black;
+} */
+
 p {
   font-family: Roboto, sans-serif;
+  color: black;
 }
 
 li {
   display: inline;
   list-style-type: none;
   padding-right: 20px;
+}
+
+kendo-numerictextbox {
+  width: 6em;
+}
+
+.buttons {
+  background-color: white;
 }

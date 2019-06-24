@@ -53,13 +53,13 @@
         ></app-card>
       </li>
       <li hidden="!game.dealerTurn">
-        <img src="assets/Gray_back.jpg" width="10%" height="10%" />
+        <img src="assets/Gray_back.jpg" width="5%" height="5%" />
       </li>
     </ul>
   </div>
 
   <div class="col-xs-12 col-md-6 example-col">
-    <label [for]="checked">Peek Dealer </label>
+    <p>Peek Dealer</p>
     <kendo-switch
       [(ngModel)]="game.peek"
       width="75%"
@@ -97,43 +97,41 @@
     <ul>
       <li *ngFor="let card of game.human.hand">
         <app-card
-          [name]="card.name"
-          [suite]="card.suite"
-          [image]="card.image"
+          [name]="card?.name"
+          [suite]="card?.suite"
+          [image]="card?.image"
         ></app-card>
       </li>
     </ul>
   </div>
   <div class="col-xs-12 col-md-6 example-col">
-    <label [for]="checked">Show Score </label>
+    <!-- <label [for]="checked">Show Score </label> -->
     <kendo-switch
       [(ngModel)]="game.showScore"
       width="75%"
       height="75%"
     ></kendo-switch>
-  </div>
 
-  <div *ngIf="game.showScore">
-    <div
-      *ngIf="
-        game.human.upperScore != game.human.lowerScore &&
-          game.human.upperScore < 21;
-        else oneScore
-      "
-    >
-      <p>
-        Split Score: {{ game.human.lowerScore }} / {{ game.human.upperScore }}
-      </p>
-    </div>
-
-    <ng-template #oneScore>
-      <div *ngIf="game.human.hasBlackJack(); else noBlackJack">
-        <p>Score: {{ game.human.upperScore }}</p>
+    <div *ngIf="game.showScore">
+      <div
+        *ngIf="
+          game.human.upperScore != game.human.lowerScore &&
+            game.human.upperScore < 21;
+          else oneScore
+        "
+      >
+        <p>Score: {{ game.human.lowerScore }} / {{ game.human.upperScore }}</p>
       </div>
-      <ng-template #noBlackJack>
-        <p>Score: {{ game.human.lowerScore }}</p>
+
+      <ng-template #oneScore>
+        <div *ngIf="game.human.hasBlackJack(); else noBlackJack">
+          <p>Score: {{ game.human.upperScore }}</p>
+        </div>
+        <ng-template #noBlackJack>
+          <p>Score: {{ game.human.lowerScore }}</p>
+        </ng-template>
       </ng-template>
-    </ng-template>
+    </div>
   </div>
 
   <!-- <div *ngIf="game.human.upperScore != game.human.lowerScore && game.showScore"> -->
@@ -150,7 +148,7 @@
   <!-- Buttons -->
 
   <div>
-    <kendo-buttongroup>
+    <kendo-buttongroup class="buttons">
       <!-- Hit Button -->
       <button
         kendoButton
@@ -227,7 +225,7 @@
         </ul>
       </div>
       <div class="col-xs-12 col-md-6 example-col">
-        <label [for]="checked">Show Score </label>
+        <!-- <label [for]="checked">Show Score </label> -->
         <kendo-switch
           [(ngModel)]="game.showScore"
           width="75%"

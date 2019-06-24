@@ -35,6 +35,7 @@ export class Game {
     this.showSecondScore = false
     this.peek = false
     this.handOver = false
+    // * Stuff for the winnings chart
     // this.chart = new Chart(
     //   document.getElementById('myChart').getContext('2d'),
     //   {
@@ -71,11 +72,13 @@ export class Game {
   }
 
   hit(p: Player, splitHands: boolean): void {
+    // * Handle if split or not
     if (!splitHands) {
       if (
         (!this.dealerTurn && !p.isDealer) ||
         (this.dealerTurn && p.isDealer)
       ) {
+        // * Deal a new card, update score and check for bust
         let card = this.deck.deal()
 
         p.upperScore += card.value
@@ -88,6 +91,7 @@ export class Game {
         this.checkForBust(p)
       }
     } else {
+      // !! Same thing for the split case, needs to be fixed
       if (
         (!this.dealerTurn && !p.isDealer) ||
         (this.dealerTurn && p.isDealer)
@@ -107,6 +111,7 @@ export class Game {
   }
 
   checkForBust(p: Player): void {
+    // * Update state to reflect bust
     if (p.isBusted) {
       this.message = 'You busted!'
       p.winnings -= this.bet
@@ -161,7 +166,7 @@ export class Game {
     return shouldHit
   }
 
-  // * Returns 1 if player ones, -1 if dealer wins, 0 if tie
+  // * Returns 1 if player wnis, -1 if dealer wins, 0 if tie
   whoWins(): number {
     const dealerScore =
       this.dealer.upperScore > 21
@@ -261,9 +266,11 @@ export class Game {
         }
       }
     }
+    // * Enable betting changes
     this.handOver = true
   }
 
+  // * Double down only possible as first move (can't hit then double down)
   double(): void {
     if (this.human.hand.length == 2) {
       if (!this.dealerTurn) {
@@ -274,9 +281,11 @@ export class Game {
       if (!this.human.isBusted) {
         this.stand()
       }
+      this.bet = this.bet / 2
     }
   }
 
+  // !! Not working yet
   split(): void {
     if (
       this.human.hand.length == 2 &&
@@ -294,6 +303,7 @@ export class Game {
     this.bet *= 2
   }
 
+  // * Add the winnings data to the chart ??
   addData(chart: Chart, label, data) {
     chart.data.labels.push(label)
     chart.data.datasets.forEach(dataset => {
@@ -302,7 +312,40 @@ export class Game {
     chart.update()
   }
 
+  dealHand(): void {
+    // * Deal two cards to player
+    let card1 = this.deck.deal()
+    let card2 = this.deck.deal()
+
+    // * Assign both the value and possible optionalValue (Ace 1  or 11) to scores
+    this.human.upperScore = card1.value + card2.value
+    this.human.lowerScore = card1.optionalValue + card2.optionalValue
+
+    // * Add the two cards to the players hand
+    this.human.hand.push(card1)
+    this.human.hand.push(card2)
+
+    // * Deal the dealer two cards
+    let upcard = this.deck.deal()
+    let downcard = this.deck.deal()
+
+    // * 2 Ace edge case for dealer: set low to 12 and high to 22 instead of 2 and 22
+    if (downcard.name == 'Ace' && upcard.name == 'Ace') {
+      this.dealer.upperScore = upcard.value + downcard.value
+      this.dealer.lowerScore = upcard.value + downcard.optionalValue
+    } else {
+      // * Otherwise add the value to the upperScore and optionalValue to lower
+      this.dealer.upperScore = upcard.value + downcard.value
+      this.dealer.lowerScore = upcard.optionalValue + downcard.optionalValue
+    }
+
+    // * Add the two cards to the dealers hand
+    this.dealer.hand.push(upcard)
+    this.dealer.hand.push(downcard)
+  }
+
   nextHand(): void {
+    // * Reset the state of the game for the next hand
     this.message = ''
     this.human.hand = []
     this.human.secondHand = []
@@ -317,40 +360,18 @@ export class Game {
     this.human.isBusted = false
     this.dealer.isBusted = false
     this.handOver = false
-
     this.dealerTurn = false
-    // this.bet = 10
     this.handNumber++
     this.balanceList.push(this.human.winnings)
 
-    // this.chart.update()
-    // this.addData(this.chart, this.handNumber, this.human.winnings)
     // * Shuffle a new deck if we have less than 15 cards left
     if (this.deck.cards.length < 15) {
       this.deck = new Deck()
     }
-    // * Deal two cards to player
-    let card1 = this.deck.deal()
-    let card2 = this.deck.deal()
+    this.dealHand()
 
-    this.human.upperScore = card1.value + card2.value
-    this.human.lowerScore = card1.optionalValue + card2.optionalValue
-
-    this.human.hand.push(card1)
-    this.human.hand.push(card2)
-
-    let upcard = this.deck.deal()
-    let downcard = this.deck.deal()
-    // * 2 Ace edge case for dealer: set low to 12 and high to 22 instead of 2 and 22
-    if (downcard.name == 'Ace' && upcard.name == 'Ace') {
-      this.dealer.upperScore = upcard.value + downcard.value
-      this.dealer.lowerScore = upcard.value + downcard.optionalValue
-    } else {
-      this.dealer.upperScore = upcard.value + downcard.value
-      this.dealer.lowerScore = upcard.optionalValue + downcard.optionalValue
-    }
-
-    this.dealer.hand.push(upcard)
-    this.dealer.hand.push(downcard)
+    // * Maybe get this winnings chart work
+    // this.chart.update()
+    // this.addData(this.chart, this.handNumber, this.human.winnings)
   }
 }

@@ -13,8 +13,10 @@ export class Card {
     this.image = this.getImage()
   }
 
+  // * Gets the string path to the image Ex: Ace Spades -> assets/AS.jpg
   getImage(): string {
     let str = 'assets/'
+    // * Handles the edge case for the 10 w two characters
     if (this.name == '10') {
       str += this.name.substring(0, 2)
     } else {

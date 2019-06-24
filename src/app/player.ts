@@ -25,7 +25,10 @@ export class Player {
     this.isDealer = isDealer
   }
 
+  // * Checks if this player has a blackjack (2 cards)
   hasBlackJack(): boolean {
-    return this.upperScore == 21 && this.hand.length == 2
+    if (this.hand != null) {
+      return this.upperScore == 21 && this.hand.length == 2
+    }
   }
 }

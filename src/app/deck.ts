@@ -11,6 +11,7 @@ export class Deck {
     this.shuffle()
   }
 
+  // * Randomizes the card objects in the deck
   shuffle(): void {
     this.cards.sort(() => Math.random() - 0.5)
   }
@@ -43,13 +44,8 @@ export class Deck {
     return deck
   }
 
+  // * Deck has been shuffled just pop off the top destructively
   deal(): Card {
     return this.cards.pop()
-
-    // * pick a random card
-    // const index = Math.floor(Math.random() * this.cards.length)
-    // const c = this.cards[index]
-    // this.cards.splice(index, 1)
-    // return c
   }
 }
